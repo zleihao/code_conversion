@@ -1,4 +1,5 @@
 #include "convert.h"
+#include "search_path.h"
 
 char origin_buff[2048];
 char convert[2048];
@@ -14,6 +15,10 @@ int main(int argc, char *argv[])
         printf("%s <源文件> <目标文件>", argv[0]);
         return -1;
     }
+
+    walk("/mnt/d/study/code_conversion");
+
+    exit(0);
 
     target = fopen(argv[2], "w+");
 
