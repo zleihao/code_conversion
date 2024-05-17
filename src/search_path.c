@@ -2,8 +2,25 @@
 
 #define FILE_PATH_MAX 2048
 
+int is_directory(const char *path) 
+{
+    struct stat path_stat;
+    if (stat(path, &path_stat) != 0) {
+        perror("stat");
+        return -1; // 错误，无法获取路径信息
+    }
+
+    return S_ISDIR(path_stat.st_mode);
+}
+
 void walk(char *path)
 {
+    /* 检测传入的路径是一个文件还是文件夹 */
+    if (is_directory(path) != 1) {
+        printf("%s is a file.\n", path);
+        return;
+    }
+
     DIR *dir = opendir(path);
     if (dir == NULL)
     {
@@ -16,7 +33,7 @@ void walk(char *path)
     {
         char *name = ent->d_name;
         // 忽略以点号开头的文件夹
-        if (name[0] == '.' || strcmp(name, "build") == 0)
+        if (name[0] == '.')
             continue;
 
         char file_name[FILE_PATH_MAX];

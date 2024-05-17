@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    walk("/mnt/d/study/code_conversion");
+    walk("/mnt/d/study/code_conversion/");
 
     exit(0);
 
