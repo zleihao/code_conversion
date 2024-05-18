@@ -9,4 +9,5 @@ include_directories("./inc")
 add_executable(code_conversion ./src/main.c
         src/queue.c
         src/convert.c
-        src/search_path.c)
+        src/search_path.c
+        src/coding.c)

@@ -7,6 +7,6 @@
 #include <string.h>
 #include <stdint.h>
 
-int convert(char *path);
+int convert(const char *path);
 
 #endif
