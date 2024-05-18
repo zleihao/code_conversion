@@ -1,11 +1,41 @@
 #include "convert.h"
 #include "search_path.h"
+#include "queue.h"
 
 char origin_buff[2048];
 char convert[2048];
 
 int main(int argc, char *argv[])
 {
+    queue_root_t *queue_root = queue_root_init();
+    queue_node_t *node1 = queue_node_create("/path/to/file1.txt");
+    queue_node_t *node2 = queue_node_create("/path/to/file2.txt");
+    queue_node_t *node3 = queue_node_create("/path/to/file3.txt");
+    queue_node_t *node4 = queue_node_create("/path/to/file4.txt");
+
+    enqueue(queue_root, node4);
+    enqueue(queue_root, node1);
+    enqueue(queue_root, node2);
+    enqueue(queue_root, node3);
+
+    print_queue(queue_root);
+    printf("出队1\n");
+    dequeue(queue_root);
+    print_queue(queue_root);
+    printf("出队2\n");
+    dequeue(queue_root);
+    print_queue(queue_root);
+
+
+    printf("出队2\n");
+    dequeue(queue_root);
+    dequeue(queue_root);
+    dequeue(queue_root);
+    print_queue(queue_root);
+
+    exit(0);
+
+    // 释放内存等其他操作
     FILE *fp = NULL;
     FILE *target = NULL;
     size_t ret = 0, srclen, outlen = 2048;
