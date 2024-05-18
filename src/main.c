@@ -4,7 +4,7 @@
 #include "queue.h"
 #include "coding.h"
 
-queue_root_t *q_rooot;
+queue_root_t *q_root;
 
 int main(int argc, char *argv[])
 {
@@ -15,10 +15,22 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    //if (!is_file_gbk(argv[1])) {
-    //    printf("文件 %s 不是一个gbk编码，暂不支持转化\n", argv[1]);
-    //    return -1;
-    //}
-    convert(argv[1]);
+    /* 初始化队列 */
+    q_root = queue_root_init();
+
+    /* 检测传入的路径是一个文件还是文件夹 */
+    if (is_directory(argv[1]) != 1) {
+        convert(argv[1]);
+    } else {
+        walk(argv[1], suffix, ROW_COUNT(suffix));
+
+        queue_node_t *path_node = NULL;
+        while ((path_node = dequeue(q_root)) != NULL) {
+            convert(path_node->path);
+        }
+    }
+
+    printf("文件/文件夹 %s 转化完成\n", argv[1]);
+
     return 0;
 }

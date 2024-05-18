@@ -56,7 +56,7 @@ int convert(const char *path)
     char origin_buff[2049], des[2049];
 
     if (!is_file_gbk(path)) {
-        printf("文件 %s 不是一个gbk编码，暂不支持转化\n", path);
+        printf("%s 不是一个gbk编码，暂不支持转化\n", path);
         return -1;
     }
     //备份文件
@@ -80,7 +80,7 @@ int convert(const char *path)
 
     fp = fopen(path, "r");
     if (NULL == fp) {
-        printf("文件 %s 打开失败\n", path);
+        printf("%s 打开失败\n", path);
         goto FAIL_FREE_MEM;
     }
 

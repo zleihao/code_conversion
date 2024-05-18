@@ -29,12 +29,6 @@ int has_any_suffix(const char *filename, const char **suffixes, size_t num_suffi
 
 void walk(const char *path, const char **suffix, size_t num_suffix)
 {
-    /* 检测传入的路径是一个文件还是文件夹 */
-    if (is_directory(path) != 1) {
-        printf("%s is a file.\n", path);
-        return;
-    }
-
     DIR *dir = opendir(path);
     if (dir == NULL)
     {
@@ -54,8 +48,9 @@ void walk(const char *path, const char **suffix, size_t num_suffix)
         snprintf(file_name, FILE_PATH_MAX, "%s/%s", path, name);
         if (ent->d_type == DT_REG) {
             if (has_any_suffix(name, suffix, num_suffix)) {
-                // TODO: add to queue
-                printf("%s\n", file_name);
+                /* 将文件路径入队 */
+                queue_node_t *node = queue_node_create(file_name);
+                enqueue(q_root, node);
             }
         }
 
