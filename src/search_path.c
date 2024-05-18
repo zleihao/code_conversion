@@ -13,7 +13,21 @@ int is_directory(const char *path)
     return S_ISDIR(path_stat.st_mode);
 }
 
-void walk(char *path)
+int has_any_suffix(const char *filename, const char **suffixes, size_t num_suffixes) {
+    size_t filename_len = strlen(filename);
+
+    for (size_t i = 0; i < num_suffixes; ++i) {
+        size_t suffix_len = strlen(suffixes[i]);
+        if (filename_len >= suffix_len) {
+            if (strcmp(filename + filename_len - suffix_len, suffixes[i]) == 0) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+void walk(const char *path, const char **suffix, size_t num_suffix)
 {
     /* 检测传入的路径是一个文件还是文件夹 */
     if (is_directory(path) != 1) {
@@ -39,14 +53,16 @@ void walk(char *path)
         char file_name[FILE_PATH_MAX];
         snprintf(file_name, FILE_PATH_MAX, "%s/%s", path, name);
         if (ent->d_type == DT_REG) {
-            // TODO: add to queue
-            printf("%s\n", file_name);
+            if (has_any_suffix(name, suffix, num_suffix)) {
+                // TODO: add to queue
+                printf("%s\n", file_name);
+            }
         }
 
         if (ent->d_type == DT_DIR) {
             char new_path[FILE_PATH_MAX];
             snprintf(new_path, FILE_PATH_MAX, "%s/%s", path, name);
-            walk(new_path);
+            walk(new_path, suffix, num_suffix);
         }
     }
 
