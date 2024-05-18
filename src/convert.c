@@ -98,8 +98,7 @@ int convert(char *path)
     FILE *fp = NULL;
     FILE *target = NULL;
 
-    char origin_buff[2049];
-    char des[2049];
+    char origin_buff[2049], des[2049];
 
     //备份文件
     char *back_file = NULL;
@@ -115,7 +114,7 @@ int convert(char *path)
     fp = fopen(path, "r");
     if (NULL == fp) {
         printf("文件 %s 打开失败\n", path);
-        return -1;
+        goto FAIL_FREE_MEM;
     }
 
     // 逐行读取文件内容
@@ -128,7 +127,10 @@ int convert(char *path)
         ret = gbk_to_utf8(origin_buff, &srclen, des, &outlen);
         //ret = utf8_to_gbk(origin_buff, &srclen, convert, &outlen);
         if (-1 == ret) {
-            return -1;
+            if (remove(back_file) != 0) {
+                goto FAIL_FREE_MEM;
+            }
+            goto FAIL_FREE_MEM;
         }
 
         //将转换后的文件写到新的文件中
@@ -142,19 +144,32 @@ int convert(char *path)
 
     // 删除源文件
     if (remove(path) != 0) {
-        perror("删除源文件失败");
-        return -1;
+        printf("删除源文件%s失败", path);
+        goto FAIL_FREE_MEM;
     }
 
     // 重命名目标文件为源文件名
     if (rename(back_file, path) != 0) {
         perror("重命名文件失败");
-        return -1;
+        goto FAIL_FREE_MEM;
     }
 
     //关闭文件句柄
     fclose(fp);
     fclose(target);
 
+    /* 释放掉备份文件路径 */
+    free(back_file);
+
     return 0;
+
+/*错误，释放资源*/
+FAIL_FREE_MEM:
+    //关闭文件句柄
+    fclose(fp);
+    fclose(target);
+
+    /* 释放掉备份文件路径 */
+    free(back_file);
+    return -1;
 }
