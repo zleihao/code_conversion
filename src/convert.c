@@ -73,30 +73,30 @@ int convert(const char *path)
     size_t ret = 0, srclen, outlen;
 
     if (!is_file_gbk(path)) {
-        printf("%s 不是一个gbk编码，暂不支持转化\n", path);
+        printf("%s It is not a gbk code and does not support conversion\n", path);
         return -1;
     }
     //备份文件
     char *back_file = NULL;
     back_file = (char *)malloc(strlen(path) + 6);
     if (NULL == back_file) {
-        printf("申请空间失败\n");
+        printf("malloc fail\n");
         return -1;
     }
 
     strcpy(back_file, path);
     strcat(back_file, ".back");
 
-    target = fopen(back_file, "w+");
+    target = fopen(back_file, "wb+");
     if (NULL == target) {
-        printf("临时文件创建失败\n");
+        printf("create tmp file fail!\n");
         free(back_file);
         return -1;
     }
 
-    fp = fopen(path, "r");
+    fp = fopen(path, "rb");
     if (NULL == fp) {
-        printf("%s 打开失败\n", path);
+        printf("%s open fail\n", path);
         fclose(target);
         free(back_file);
         return -1;
@@ -126,7 +126,7 @@ int convert(const char *path)
 
     // 读取源文件内容
     if (fread(origin, 1, file_size, fp) != file_size) {
-        perror("文件读取失败");
+        fprintf(stderr, "read file %s fail!\n", path);
         fclose(fp);
         fclose(target);
         free(back_file);
@@ -151,7 +151,7 @@ int convert(const char *path)
 
     // 将转换后的内容写入目标文件
     if (fwrite(des, 1, strlen(des), target) != strlen(des)) {
-        perror("文件写入失败");
+        perror("writer file fail!");
         fclose(fp);
         fclose(target);
         remove(back_file);
@@ -168,7 +168,7 @@ int convert(const char *path)
 
     // 删除源文件
     if (remove(path) != 0) {
-        printf("删除源文件%s失败", path);
+        printf("del file %s fail", path);
         free(back_file);
         free(origin);
         free(des);
@@ -177,7 +177,7 @@ int convert(const char *path)
 
     // 重命名目标文件为源文件名
     if (rename(back_file, path) != 0) {
-        perror("重命名文件失败");
+        perror("file rename fail!");
         free(back_file);
         free(origin);
         free(des);

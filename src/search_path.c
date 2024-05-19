@@ -27,6 +27,7 @@ int has_any_suffix(const char *filename, const char **suffixes, size_t num_suffi
     return 0;
 }
 
+#ifdef UNIX
 void walk(const char *path, const char **suffix, size_t num_suffix)
 {
     DIR *dir = opendir(path);
@@ -63,3 +64,80 @@ void walk(const char *path, const char **suffix, size_t num_suffix)
 
     closedir(dir);
 }
+#endif
+
+#ifdef WINDOWS
+#include <windows.h>
+
+// 函数来替换字符串中的反斜杠为正斜杠
+char* replace_backslashes_with_slashes(const char* input) {
+    size_t input_len = strlen(input);
+
+    // 为新字符串分配内存
+    char* result = (char*)malloc(input_len + 1); // +1 for the null terminator
+    if (result == NULL) {
+        fprintf(stderr, "Memory allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // 构建新字符串
+    size_t j = 0;
+    for (size_t i = 0; i < input_len; i++) {
+        if (input[i] == '\\') {
+            if (i + 1 < input_len && input[i + 1] == '\\') {
+                // Skip the next backslash if it's a double backslash
+                i++;
+            }
+            result[j++] = '/';
+        } else {
+            result[j++] = input[i];
+        }
+    }
+
+    // 终止新字符串
+    result[j] = '\0';
+
+    return result;
+}
+
+void walk(const char *path, const char **suffixes, size_t num_suffixes)
+{
+    WIN32_FIND_DATA findFileData;
+    HANDLE hFind = INVALID_HANDLE_VALUE;
+
+    char dirPath[FILE_PATH_MAX];
+    snprintf(dirPath, FILE_PATH_MAX, "%s\\*", path);
+
+    hFind = FindFirstFile(dirPath, &findFileData);
+
+    if (hFind == INVALID_HANDLE_VALUE) {
+        printf("FindFirstFile failed (%d)\n", GetLastError());
+        return;
+    }
+
+    do {
+        const char *name = findFileData.cFileName;
+
+        // 忽略以点号开头的文件夹
+        if (name[0] == '.') {
+            continue;
+        }
+
+        char file_name[FILE_PATH_MAX];
+        snprintf(file_name, FILE_PATH_MAX, "%s\\%s", path, name);
+
+        if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+            walk(file_name, suffixes, num_suffixes);
+        } else {
+            if (has_any_suffix(name, suffixes, num_suffixes)) {
+                /* 将文件路径入队 */
+                queue_node_t *node = queue_node_create(replace_backslashes_with_slashes(file_name));
+                enqueue(q_root, node);
+            }
+        }
+    } while (FindNextFile(hFind, &findFileData) != 0);
+
+    FindClose(hFind);
+}
+
+#endif

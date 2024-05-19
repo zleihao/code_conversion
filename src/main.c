@@ -1,4 +1,3 @@
-#include <stdbool.h>
 #include "convert.h"
 #include "search_path.h"
 #include "queue.h"
@@ -31,8 +30,7 @@ void *handler(void *arg) {
 int main(int argc, char *argv[])
 {
     if (argc < 2) {
-        perror("参数过少：");
-        printf("%s <文件/文件夹>", argv[0]);
+        printf("Usage is wrong: %s <file path>", argv[0]);
         return -1;
     }
     pthread_t tdi[NUM_THREAD];
@@ -57,7 +55,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    printf("文件/文件夹 %s 转换完成\n", argv[1]);
+    printf("%s transcoding complete\n", argv[1]);
 
     pthread_mutex_destroy(&f_lock);
 
