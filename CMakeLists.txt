@@ -18,7 +18,7 @@ include_directories("./inc")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
 
-add_executable(code_conversion ./src/main.c
+add_executable(conver ./src/main.c
         src/queue.c
         src/convert.c
         src/search_path.c

@@ -4,17 +4,26 @@
 
 
 
+**`！！！转码之前记得备份一下，以免转码出错 ！！！`**
+
+
+
 ##  编译
 
 ```bash
 git clone git@github.com:zleihao/code_conversion.git
 cd code_conversion
+
+# Linux
 cmake -S . -B build
+# MinGW64
+
+cmake -S . -B build -G "MinGW Makefiles"
 cd build
 make
 ```
 
-上述指令执行完后，会在目录 **build** 下生成可执行文件：**code_conversion**
+上述指令执行完后，会在目录 **build** 下生成可执行文件：**conver**
 
 
 
@@ -24,4 +33,4 @@ make
 ./build/code_conversion <file_path>
 ````
 
-file_path 可以是一个文件，也可以是一个文件夹，若是文件夹，则会把文件夹内的所有 **.c**、**.h** 编码由 **GBK** 转成 **UTF-8**，目前暂不支持指定文件类型转换，只支持 **.c ** 、**.h** 。
+file_path 可以是一个文件，也可以是一个文件夹，若是文件夹，则会把文件夹内的所有 **.c**、**.h** 编码由 **GBK** 转成 **UTF-8**，目前暂不支持指定文件类型转换，只支持 **.c 、.h** 。
