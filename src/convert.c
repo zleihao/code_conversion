@@ -1,5 +1,11 @@
 #include "convert.h"
 #include "coding.h"
+#include <stdio.h>
+#include <iconv.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include <errno.h>
 
 static int gbk_to_utf8(char *inbuf, size_t *inlen, char *outbuf, size_t *outlen)
 {
@@ -63,6 +69,40 @@ static int gbk_to_utf8(char *inbuf, size_t *inlen, char *outbuf, size_t *outlen)
     return 0;
 }
 
+uint32_t get_file_size(FILE *fp)
+{
+    uint32_t f_size = 0;
+
+    //得到文件长度
+    fseek(fp, 0, SEEK_END);
+    f_size = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+
+    return f_size;
+}
+
+char *read_file(FILE *fp, uint32_t f_size)
+{
+    char *des = NULL;
+
+    des = (char *)calloc((f_size + 4), sizeof(char));
+    if (NULL == des) {
+        return NULL;
+    }
+
+    // 读取源文件内容
+    if (fread(des, 1, f_size, fp) != f_size) {
+        return NULL;
+    }
+
+    return des;
+}
+
+/**
+ * @brief 将指定的文件编码由gbk转成utf-8
+ * @param path
+ * @return
+ */
 int convert(const char *path)
 {
     // 释放内存等其他操作
@@ -98,41 +138,23 @@ int convert(const char *path)
     if (NULL == fp) {
         printf("%s open fail\n", path);
         fclose(target);
+        remove(back_file);
         free(back_file);
         return -1;
     }
 
-
-    fseek(fp, 0, SEEK_END);
-    file_size = ftell(fp);
-    fseek(fp, 0, SEEK_SET);
-
-    origin = (char *)calloc(file_size + 4, 1);
-    if (NULL == origin) {
-        fclose(fp);
-        fclose(target);
-        free(back_file);
-        return -1;
-    }
+    file_size = get_file_size(fp);
 
     des = (char *)calloc((file_size*4) + 4, 1);
     if (NULL == des) {
-        fclose(fp);
-        fclose(target);
-        free(back_file);
-        free(origin);
-        return -1;
+        goto FAIL_CLEAN_FILE;
     }
 
     // 读取源文件内容
-    if (fread(origin, 1, file_size, fp) != file_size) {
+    origin = read_file(fp, file_size);
+    if (NULL == origin) {
         fprintf(stderr, "read file %s fail!\n", path);
-        fclose(fp);
-        fclose(target);
-        free(back_file);
-        free(origin);
-        free(des);
-        return -1;
+        goto FAIL_CLEAN_FILE;
     }
 
     //进行字符编码转换，GBK ---> UTF-8
@@ -140,25 +162,13 @@ int convert(const char *path)
     outlen = file_size * 4;
     ret = gbk_to_utf8(origin, &srclen, des, &outlen);
     if (-1 == ret) {
-        fclose(fp);
-        fclose(target);
-        remove(back_file);
-        free(back_file);
-        free(des);
-        free(origin);
-        return -1;
+        goto FAIL_CLEAN_FILE;
     }
 
     // 将转换后的内容写入目标文件
     if (fwrite(des, 1, strlen(des), target) != strlen(des)) {
         perror("writer file fail!");
-        fclose(fp);
-        fclose(target);
-        remove(back_file);
-        free(back_file);
-        free(origin);
-        free(des);
-        return -1;
+        goto FAIL_CLEAN_FILE;
     }
     fflush(target);
 
@@ -169,19 +179,15 @@ int convert(const char *path)
     // 删除源文件
     if (remove(path) != 0) {
         printf("del file %s fail", path);
-        free(back_file);
-        free(origin);
-        free(des);
-        return -1;
+        remove(back_file);
+        goto FAIL_FREE_MEM;
     }
 
     // 重命名目标文件为源文件名
     if (rename(back_file, path) != 0) {
         perror("file rename fail!");
-        free(back_file);
-        free(origin);
-        free(des);
-        return -1;
+        remove(back_file);
+        goto FAIL_FREE_MEM;
     }
 
     /* 释放掉备份文件路径 */
@@ -190,4 +196,14 @@ int convert(const char *path)
     free(des);
 
     return 0;
+
+FAIL_CLEAN_FILE:
+    fclose(fp);
+    fclose(target);
+    remove(back_file);
+FAIL_FREE_MEM:
+    free(back_file);
+    free(origin);
+    free(des);
+    return -1;
 }

@@ -111,7 +111,7 @@ void walk(const char *path, const char **suffixes, size_t num_suffixes)
     hFind = FindFirstFile(dirPath, &findFileData);
 
     if (hFind == INVALID_HANDLE_VALUE) {
-        printf("FindFirstFile failed (%d)\n", GetLastError());
+        printf("FindFirstFile failed (%ld)\n", GetLastError());
         return;
     }
 
