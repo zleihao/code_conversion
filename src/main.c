@@ -3,6 +3,7 @@
 #include "queue.h"
 #include "coding.h"
 #include <pthread.h>
+#include <stdint.h>
 #include <unistd.h>
 
 queue_root_t *q_root;
@@ -33,6 +34,9 @@ int main(int argc, char *argv[])
         printf("Usage is wrong: %s <file path>", argv[0]);
         return -1;
     }
+
+//    printf("%s\n", replace_backslashes_with_slashes(argv[1]));
+
     pthread_t tdi[NUM_THREAD];
     const char *suffix[] = {".c", ".h"};
 
@@ -45,7 +49,7 @@ int main(int argc, char *argv[])
     if (is_directory(argv[1]) != 1) {
         convert(argv[1]);
     } else {
-        walk(argv[1], suffix, ROW_COUNT(suffix));
+        walk(replace_backslashes_with_slashes(argv[1]), suffix, ROW_COUNT(suffix));
         for (int i = 0; i < NUM_THREAD; i++) {
             pthread_create(&tdi[i], NULL, handler, NULL);
         }

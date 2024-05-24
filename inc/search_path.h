@@ -14,6 +14,7 @@ extern queue_root_t *q_root;
 #define ROW_COUNT(x)  (sizeof(x) / sizeof(x[0]))
 
 int is_directory(const char *path);
+char *replace_backslashes_with_slashes(const char *input);
 void walk(const char *path, const char **suffix, size_t num_suffix);
 
 #endif

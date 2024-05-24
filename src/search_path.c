@@ -27,6 +27,36 @@ int has_any_suffix(const char *filename, const char **suffixes, size_t num_suffi
     return 0;
 }
 
+// 函数来替换字符串中的反斜杠为正斜杠
+char *replace_backslashes_with_slashes(const char *input) {
+    size_t input_len = strlen(input);
+
+    // 为新字符串分配内存
+    char* result = (char*)malloc(input_len + 1); // +1 for the null terminator
+    if (result == NULL) {
+        fprintf(stderr, "Memory allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // 构建新字符串
+    size_t j = 0;
+    for (size_t i = 0; i < input_len; i++) {
+        if (input[i] == '\\') {
+            if (i + 1 < input_len && input[i + 1] == '\\') {
+                i++;
+            }
+            result[j++] = '/';
+        } else {
+            result[j++] = input[i];
+        }
+    }
+
+    // 终止新字符串
+    result[j] = '\0';
+
+    return result;
+}
+
 #ifdef UNIX
 void walk(const char *path, const char **suffix, size_t num_suffix)
 {
@@ -69,37 +99,6 @@ void walk(const char *path, const char **suffix, size_t num_suffix)
 #ifdef WINDOWS
 #include <windows.h>
 
-// 函数来替换字符串中的反斜杠为正斜杠
-char* replace_backslashes_with_slashes(const char* input) {
-    size_t input_len = strlen(input);
-
-    // 为新字符串分配内存
-    char* result = (char*)malloc(input_len + 1); // +1 for the null terminator
-    if (result == NULL) {
-        fprintf(stderr, "Memory allocation failed\n");
-        exit(EXIT_FAILURE);
-    }
-
-    // 构建新字符串
-    size_t j = 0;
-    for (size_t i = 0; i < input_len; i++) {
-        if (input[i] == '\\') {
-            if (i + 1 < input_len && input[i + 1] == '\\') {
-                // Skip the next backslash if it's a double backslash
-                i++;
-            }
-            result[j++] = '/';
-        } else {
-            result[j++] = input[i];
-        }
-    }
-
-    // 终止新字符串
-    result[j] = '\0';
-
-    return result;
-}
-
 void walk(const char *path, const char **suffixes, size_t num_suffixes)
 {
     WIN32_FIND_DATA findFileData;
@@ -131,7 +130,7 @@ void walk(const char *path, const char **suffixes, size_t num_suffixes)
         } else {
             if (has_any_suffix(name, suffixes, num_suffixes)) {
                 /* 将文件路径入队 */
-                queue_node_t *node = queue_node_create(replace_backslashes_with_slashes(file_name));
+                queue_node_t *node = queue_node_create(file_name);
                 enqueue(q_root, node);
             }
         }
