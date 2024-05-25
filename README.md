@@ -29,8 +29,24 @@ make
 
 ##  用法
 
-````bash
-./build/code_conversion <file_path>
-````
+本工具支持单个文件转码或者是整个文件夹下的文件进行转码，二者在使用时稍有不同。
 
-file_path 可以是一个文件，也可以是一个文件夹，若是文件夹，则会把文件夹内的所有 **.c**、**.h** 编码由 **GBK** 转成 **UTF-8**，目前暂不支持指定文件类型转换，只支持 **.c 、.h** 。
+- 单个文件进行转码
+
+  ```bash
+  ./build/conver <file_path>
+  ```
+
+- 以文件夹形式进行转码
+
+  ```bash
+  ./build/code_conversion <file_path> <file_suffix_list>
+  ```
+
+  file_suffix_list表示的是文件的后缀，例如：.c、.h之类的。**传入多种类型时，不同类型之间用一个空格隔开，不要用一个以上。**
+
+  假设想把一个文件夹下所有的 **.c .h .S** 文件由gbk编码转成utf-8只需执行下面的命令即可：
+
+  ``` bash 
+  ./build/code_conversion /project/src ".c .h .S"
+  ```

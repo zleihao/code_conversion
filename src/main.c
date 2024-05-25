@@ -29,7 +29,7 @@ void *handler(void *arg) {
 }
 
 /* 解析命令行 */
-char **parse_argc(const char *argc, uint32_t *str_size)
+char **parse_argc(char *argc, uint32_t *str_size)
 {
     uint32_t word_count = 1;
 
@@ -76,19 +76,12 @@ char **parse_argc(const char *argc, uint32_t *str_size)
 
 int main(int argc, char *argv[])
 {
-    if (argc < 3) {
-        printf("Usage is wrong: %s <file path> <file suffix list>", argv[0]);
+    if (argc > 3) {
+        printf("Usage is wrong: %s <file path> <file suffix list>", replace_backslashes_with_slashes(argv[0]));
         return -1;
     }
 
-    uint32_t size = 0;
     pthread_t tdi[NUM_THREAD];
-    char **suffix = parse_argc(argv[2], &size);
-    if (NULL == suffix) {
-        printf("file suffix list error!\n");
-        return -1;
-    }
-
     pthread_mutex_init(&f_lock, NULL);
 
     /* 初始化队列 */
@@ -98,6 +91,16 @@ int main(int argc, char *argv[])
     if (is_directory(argv[1]) != 1) {
         convert(argv[1]);
     } else {
+        if (NULL == argv[2]) {
+            printf("Usage is wrong: %s <file path> <file suffix list>", replace_backslashes_with_slashes(argv[0]));
+            return -1;
+        }
+        uint32_t size = 0;
+        char **suffix = parse_argc(argv[2], &size);
+        if (NULL == suffix) {
+            printf("file suffix list error!\n");
+            return -1;
+        }
         walk(replace_backslashes_with_slashes(argv[1]), suffix, size);
         for (int i = 0; i < NUM_THREAD; i++) {
             pthread_create(&tdi[i], NULL, handler, NULL);

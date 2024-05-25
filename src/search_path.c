@@ -58,7 +58,7 @@ char *replace_backslashes_with_slashes(const char *input) {
 }
 
 #ifdef UNIX
-void walk(const char *path, const char **suffix, size_t num_suffix)
+void walk(const char *path, char **suffix, size_t num_suffix)
 {
     DIR *dir = opendir(path);
     if (dir == NULL)
@@ -99,7 +99,7 @@ void walk(const char *path, const char **suffix, size_t num_suffix)
 #ifdef WINDOWS
 #include <windows.h>
 
-void walk(const char *path, const char **suffixes, size_t num_suffixes)
+void walk(const char *path, char **suffixes, size_t num_suffixes)
 {
     WIN32_FIND_DATA findFileData;
     HANDLE hFind = INVALID_HANDLE_VALUE;

@@ -15,6 +15,6 @@ extern queue_root_t *q_root;
 
 int is_directory(const char *path);
 char *replace_backslashes_with_slashes(const char *input);
-void walk(const char *path, const char **suffix, size_t num_suffix);
+void walk(const char *path, char **suffix, size_t num_suffix);
 
 #endif
