@@ -28,17 +28,66 @@ void *handler(void *arg) {
     }
 }
 
+/* 解析命令行 */
+char **parse_argc(const char *argc, uint32_t *str_size)
+{
+    uint32_t word_count = 1;
+
+    char **ans;
+    char *word = NULL;
+
+    // 跳过前导空格
+    while (*argc == ' ') {
+        argc++;
+    }
+    /* 统计单词个数 */
+    for (int i = 0; argc[i]; i++) {
+        if (argc[i] == ' ') {
+            word_count++;
+        }
+    }
+
+    ans = (char **)malloc(sizeof(char *) * (word_count + 1));
+    if (NULL == ans) {
+        return NULL;
+    }
+
+    word = strtok(argc, " ");
+    int i = 0;
+    while (word != NULL) {
+        ans[i] = malloc(strlen(word) + 1);
+        if (ans[i] == NULL) {
+            // 内存分配失败,释放已分配的内存
+            for (int j = 0; j < i; j++) {
+                free(ans[j]);
+            }
+            free(ans);
+            return NULL;
+        }
+        strcpy(ans[i], word);
+        word = strtok(NULL, " ");
+        i++;
+    }
+    ans[i] = NULL; // 添加结束标记
+    *str_size = word_count;
+
+    return ans;
+}
+
 int main(int argc, char *argv[])
 {
-    if (argc < 2) {
-        printf("Usage is wrong: %s <file path>", argv[0]);
+    if (argc < 3) {
+        printf("Usage is wrong: %s <file path> <file suffix list>", argv[0]);
         return -1;
     }
 
-//    printf("%s\n", replace_backslashes_with_slashes(argv[1]));
-
+    uint32_t size = 0;
     pthread_t tdi[NUM_THREAD];
-    const char *suffix[] = {".c", ".h"};
+    char **suffix = parse_argc(argv[2], &size);
+    if (NULL == suffix) {
+        printf("file suffix list error!\n");
+        return -1;
+    }
 
     pthread_mutex_init(&f_lock, NULL);
 
@@ -49,7 +98,7 @@ int main(int argc, char *argv[])
     if (is_directory(argv[1]) != 1) {
         convert(argv[1]);
     } else {
-        walk(replace_backslashes_with_slashes(argv[1]), suffix, ROW_COUNT(suffix));
+        walk(replace_backslashes_with_slashes(argv[1]), suffix, size);
         for (int i = 0; i < NUM_THREAD; i++) {
             pthread_create(&tdi[i], NULL, handler, NULL);
         }

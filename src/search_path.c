@@ -130,7 +130,7 @@ void walk(const char *path, const char **suffixes, size_t num_suffixes)
         } else {
             if (has_any_suffix(name, suffixes, num_suffixes)) {
                 /* 将文件路径入队 */
-                queue_node_t *node = queue_node_create(file_name);
+                queue_node_t *node = queue_node_create(replace_backslashes_with_slashes(file_name));
                 enqueue(q_root, node);
             }
         }
