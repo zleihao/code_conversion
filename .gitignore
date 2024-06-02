@@ -1,5 +1,6 @@
 .cmake
 .idea
+target
 build
 cmake-build-debug
 *.exe
