@@ -14,16 +14,10 @@
 git clone git@github.com:zleihao/code_conversion.git
 cd code_conversion
 
-# Linux
-cmake -S . -B build
-# MinGW64
-
-cmake -S . -B build -G "MinGW Makefiles"
-cd build
-make
+cargo build
 ```
 
-上述指令执行完后，会在目录 **build** 下生成可执行文件：**conver**
+上述指令执行完后，会在目录 **target** 下生成可执行文件：**conver**
 
 
 
@@ -34,13 +28,13 @@ make
 - 单个文件进行转码
 
   ```bash
-  ./build/conver <file_path>
+  ./target/debug/conver <file_path>
   ```
 
 - 以文件夹形式进行转码
 
   ```bash
-  ./build/code_conversion <file_path> <file_suffix_list>
+  ./target/debug/conver <file_path> <file_suffix_list>
   ```
 
   file_suffix_list表示的是文件的后缀，例如：.c、.h之类的。**传入多种类型时，不同类型之间用一个空格隔开，不要用一个以上。**
