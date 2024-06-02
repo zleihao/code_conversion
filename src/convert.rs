@@ -5,11 +5,11 @@ use std::{
 
 use crate::coding::file_is_gbk;
 
-pub fn convert(path: &str) {
+pub fn convert(path: &str) -> bool {
     //判断传入的文件是否是gbk
     if !file_is_gbk::is_file_gbk(path) {
         println!("file {} not is gbk!", path);
-        return;
+        return false;
     }
 
     //创建备份文件
@@ -26,7 +26,7 @@ pub fn convert(path: &str) {
         Err(_) => {
             println!("file {} open fail!", path);
             let _ = fs::remove_file(file_back.clone());
-            return;
+            return false;
         }
         Ok(f) => f,
     };
@@ -36,7 +36,7 @@ pub fn convert(path: &str) {
         Err(_) => {
             println!("file {} read fail", path);
             let _ = fs::remove_file(file_back.clone());
-            return;
+            return false;
         }
         _ => (),
     };
@@ -48,7 +48,7 @@ pub fn convert(path: &str) {
         Err(_) => {
             println!("file {} Transcoding failure!", path);
             let _ = fs::remove_file(file_back.clone());
-            return;
+            return false;
         }
     };
 
@@ -62,7 +62,8 @@ pub fn convert(path: &str) {
         Err(_) => {
             println!("file {} Transcoding failure!", path);
             let _ = fs::remove_file(file_back.clone());
-            return;
+            return false;
         }
     }
+    true
 }

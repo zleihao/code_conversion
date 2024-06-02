@@ -28,19 +28,18 @@ pub mod file_is_gbk {
 
     pub fn is_file_gbk(file_name: &str) -> bool {
         let mut fp = fs::File::open(file_name).unwrap();
-
         let mut buf: Vec<u8> = Vec::new();
 
         match fp.read(&mut buf) {
             Ok(size) => {
                 if size == 0 {
-                    return false;
+                    false
                 } else {
-                    return self::is_valid_gbk(&buf);
+                    return is_valid_gbk(&buf);
                 }
             }
             Err(_) => {
-                return false;
+                false
             }
         }
     }

@@ -1,5 +1,5 @@
-use std::fs;
 use std::collections::VecDeque;
+use std::fs;
 
 pub fn walk(path: &str, suffix: String, q_root: &mut VecDeque<String>) {
     let paths = fs::read_dir(path).unwrap();
@@ -18,7 +18,11 @@ pub fn walk(path: &str, suffix: String, q_root: &mut VecDeque<String>) {
         }
 
         if path.file_type().unwrap().is_dir() {
-            walk(path.path().display().to_string().as_str(), suffix.clone(), q_root);
+            walk(
+                path.path().display().to_string().as_str(),
+                suffix.clone(),
+                q_root,
+            );
         }
     }
 }
