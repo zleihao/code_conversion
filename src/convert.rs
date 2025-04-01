@@ -1,15 +1,22 @@
+use crate::coding::file_is_gbk::detect_encoding;
+use encoding_rs::GBK;
 use std::{
     fs,
     io::{Read, Write},
 };
 
-use crate::coding::file_is_gbk;
-
 pub fn convert(path: &str) -> bool {
     //判断传入的文件是否是gbk
-    if !file_is_gbk::is_file_gbk(path) {
-        println!("file {} not is gbk!", path);
-        return false;
+    match detect_encoding(path) {
+        Ok(ok) => {
+            if ok.starts_with("GB") {
+                ()
+            } else {
+                println!("file {} not is gbk!, coding is {}", path, ok);
+                return false;
+            }
+        }
+        Err(_) => return false,
     }
 
     //创建备份文件
@@ -42,15 +49,14 @@ pub fn convert(path: &str) -> bool {
     };
 
     //将转码之后的内容写到新文件中
-    let res = iconv::iconv(&buf, "gbk", "utf-8");
-    let iconv = match res {
-        Ok(d) => d,
-        Err(_) => {
-            println!("file {} Transcoding failure!", path);
-            let _ = fs::remove_file(file_back.clone());
-            return false;
-        }
-    };
+    let (cow, encoding, result) = GBK.decode(&buf);
+    if result {
+        println!("file {} Transcoding failure!", path);
+        let _ = fs::remove_file(file_back.clone());
+        return false;
+    }
+
+    let iconv = cow.into_owned().into_bytes();
 
     let res = tp.write_all(&iconv);
     match res {

@@ -14,7 +14,7 @@
 git clone git@github.com:zleihao/code_conversion.git
 cd code_conversion
 
-cargo build
+cargo build --release
 ```
 
 上述指令执行完后，会在目录 **target** 下生成可执行文件：**conver**
